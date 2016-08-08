@@ -7,9 +7,11 @@ import time
 import socket
 import struct
 
+from urllib3.exceptions import MaxRetryError
+
 
 class StreamConnector(object):
-    def __init__(self, server_addr, server_port, token="None", std_idle_time=0):
+    def __init__(self, server_addr, server_port, token="None", std_idle_time=0, max_try=9):
         # Check instance type
         if not isinstance(server_port, int):
             raise TypeError("Invalid port data type! Require int, but got others")
@@ -22,10 +24,15 @@ class StreamConnector(object):
         if not isinstance(token, str):
             raise TypeError("Invalid token data type! Require string, but got others")
 
+        # Check max try type
+        if not isinstance(max_try, int):
+            raise TypeError("Invalid max_try type! Require int, but got others")
+
         self.__master_addr = server_addr
         self.__master_port = server_port
         self.__master_token = token
         self.__std_idle_time = std_idle_time
+        self.__max_try = max_try
 
         # Connection string
         self.__str_master_status = "http://" + server_addr + ":" + str(server_port) + "/status?token=" + token
@@ -119,12 +126,21 @@ class StreamConnector(object):
             return None
 
         c_target = self.__get_stream_end_point()
+        counter = self.__max_try
         while not c_target:
             time.sleep(self.__std_idle_time)
             c_target = self.__get_stream_end_point()
+            counter -= 1
+            if counter == 0:
+                raise MaxRetryError("Cannot communicate to server. Repeat exceed max_try!")
 
+        counter = self.__max_try
         while not self.__push_stream_end_point(c_target, data):
             time.sleep(self.__std_idle_time)
+            counter -= 1
+            if counter == 0:
+                raise MaxRetryError("Cannot communicate to server. Repeat exceed max_try!")
+
 
         print("Send data to " + c_target[0] + ":" + str(c_target[1]) + " successful.")
 
