@@ -7,8 +7,6 @@ import time
 import socket
 import struct
 
-from urllib3.exceptions import MaxRetryError
-
 
 class StreamConnector(object):
     def __init__(self, server_addr, server_port, token="None", std_idle_time=0, max_try=9):
@@ -132,15 +130,16 @@ class StreamConnector(object):
             c_target = self.__get_stream_end_point()
             counter -= 1
             if counter == 0:
-                raise MaxRetryError("Cannot communicate to server. Repeat exceed max_try!")
+                print("Cannot contact server. Exceed maximum retry {0}.".format(self.__max_try))
+                return False
 
         counter = self.__max_try
         while not self.__push_stream_end_point(c_target, data):
             time.sleep(self.__std_idle_time)
             counter -= 1
             if counter == 0:
-                raise MaxRetryError("Cannot communicate to server. Repeat exceed max_try!")
-
+                print("Cannot contact server. Exceed maximum retry {0}.".format(self.__max_try))
+                return False
 
         print("Send data to " + c_target[0] + ":" + str(c_target[1]) + " successful.")
 
