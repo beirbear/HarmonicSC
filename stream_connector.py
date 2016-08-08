@@ -19,7 +19,7 @@ class StreamConnector(object):
             raise AttributeError("Invalid IP address!")
 
         # Check token type
-        if not isinstance(server_port, str):
+        if not isinstance(token, str):
             raise TypeError("Invalid token data type! Require string, but got others")
 
         self.__master_addr = server_addr
