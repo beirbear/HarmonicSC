@@ -1,0 +1,6 @@
+setup.py
+harmonicSC.egg-info/PKG-INFO
+harmonicSC.egg-info/SOURCES.txt
+harmonicSC.egg-info/dependency_links.txt
+harmonicSC.egg-info/requires.txt
+harmonicSC.egg-info/top_level.txt

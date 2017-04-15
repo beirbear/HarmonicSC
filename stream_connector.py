@@ -106,8 +106,6 @@ class StreamConnector(object):
 
         with s:
             # Identifying object id
-            data[0:8] = struct.pack(">Q", target[2])
-
             s.sendall(data)
             s.sendall(b'')
             s.close()
@@ -142,6 +140,9 @@ class StreamConnector(object):
                 return False
 
         print("Send data to " + c_target[0] + ":" + str(c_target[1]) + " successful.")
+
+    def get_data_contaner(self):
+        return bytearray(8)
 
     def __is_valid_ipv4(self, ip):
         import re
