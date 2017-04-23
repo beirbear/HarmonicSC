@@ -84,6 +84,8 @@ class StreamConnector(object):
         :return: Boolean return status
         """
 
+        print(target)
+
         s = None
         for res in socket.getaddrinfo(target[0], target[1], socket.AF_UNSPEC, socket.SOCK_STREAM):
             af, socktype, proto, canonname, sa = res
