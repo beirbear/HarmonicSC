@@ -52,6 +52,23 @@ class StreamConnector(object):
         except:
             return False
 
+    def push_function(self, name, value):
+
+        if not isinstance(name, str):
+            return False
+
+        if len(name) == 0 or len(bytes(name, 'UTF-8')) > 16:
+            return False
+
+        str_push_request = "http://" + self.__master_addr + ":" + str(self.__master_port) + "/registeredFunctions?token=" + self.__master_token + "&command=push&name=" + name
+
+        response = self.__connector.request('POST', str_push_request, body=value)
+
+        if response.status == 200:
+            return True
+
+        return False
+
     def __get_stream_end_point(self):
         """
         Request for the stream end point from the master.
@@ -114,13 +131,19 @@ class StreamConnector(object):
 
         return True
 
-    def send_data(self, data):
+    def send_data(self, f_name, data):
         # The data must be byte array
         if not isinstance(data, bytearray):
             raise TypeError("Invalid data type! Require ByteArray, but got others")
 
         if len(data) == 0:
             print("No content in byte array.")
+            return None
+
+        appending_str = " " * (16 - len(f_name))
+        f_name = bytes(f_name + appending_str, 'UTF-8')
+        if len(f_name) != 16:
+            raise TypeError("Invalid function name encoding! Only UTF-8 accept.")
             return None
 
         c_target = self.__get_stream_end_point()
@@ -134,7 +157,7 @@ class StreamConnector(object):
                 return False
 
         counter = self.__max_try
-        while not self.__push_stream_end_point(c_target, data):
+        while not self.__push_stream_end_point(c_target, f_name + data):
             time.sleep(self.__std_idle_time)
             counter -= 1
             if counter == 0:
